@@ -23,6 +23,11 @@ func (shell *tRlShell) writeString(str string) {
 	shell.Write([]byte(str))
 }
 
+func (shell *tRlShell) refreshPrompt() {
+	prompt := fmt.Sprintf("%s:%s > ", ENV.CurrentAlias, ENV.Cwd)
+	shell.SetPrompt(prompt)
+}
+
 var rlshell tRlShell
 
 var panicHandler = exitOnPanic
@@ -69,8 +74,8 @@ func connect(alias string) (err error) {
 	}
 	ENV.CurrentAlias = alias
 
-	prompt := fmt.Sprintf("(%s) > ", ENV.CurrentAlias)
-	rlshell.SetPrompt(prompt)
+	ENV.Cwd = "/"
+	rlshell.refreshPrompt()
 	return nil
 }
 

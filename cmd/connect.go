@@ -15,6 +15,8 @@
 package cmd
 
 import (
+	"strings"
+
 	shellwords "github.com/mattn/go-shellwords"
 	"github.com/spf13/cobra"
 )
@@ -38,6 +40,11 @@ var connectCmd = &cobra.Command{
 			line, err := rlshell.Readline()
 			if err != nil { // io.EOF
 				break
+			}
+
+			line = strings.TrimSpace(line)
+			if len(line) == 0 {
+				continue
 			}
 
 			args, err := shellwords.Parse(line)
