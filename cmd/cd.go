@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// cdCmd represents the ls command
 var cdCmd = &cobra.Command{
 	Use:   "cd",
 	Short: "Change directory",

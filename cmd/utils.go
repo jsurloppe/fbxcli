@@ -1,6 +1,10 @@
 package cmd
 
-import "os"
+import (
+	"fmt"
+	"os"
+	"strings"
+)
 
 func exitOnPanic() {
 	if r := recover(); r != nil {
@@ -33,4 +37,12 @@ func getKnownHosts() (knownHosts []string) {
 		knownHosts = append(knownHosts, conf.Host)
 	}
 	return
+}
+
+func makePath(current, requested string) string {
+	path := strings.TrimSpace(requested)
+	if !strings.HasPrefix(path, "/") {
+		path = fmt.Sprintf("%s/%s", strings.TrimSpace(current), path)
+	}
+	return path
 }
