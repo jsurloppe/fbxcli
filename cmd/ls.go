@@ -1,6 +1,8 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 var showHidden bool
 
@@ -15,7 +17,9 @@ var lsCmd = &cobra.Command{
 		}
 
 		path = makePath(ENV.Cwd, path)
-		resp, err := ENV.CurrentClient.Ls(path, !showHidden, false, false)
+		client, err := getCurrentClient()
+		checkErr(err)
+		resp, err := client.Ls(path, !showHidden, false, false)
 		checkErr(err)
 
 		for _, f := range resp {

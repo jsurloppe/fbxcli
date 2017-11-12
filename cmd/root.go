@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/chzyer/readline"
+	"github.com/jsurloppe/fbxapi"
+	shellwords "github.com/mattn/go-shellwords"
 	"github.com/spf13/cobra"
 )
 
@@ -21,6 +23,10 @@ func (shell *tRlShell) writeString(str string) {
 		str = str + "\n"
 	}
 	shell.Write([]byte(str))
+}
+
+func printErr(err error) {
+	rlshell.writeString(err.Error())
 }
 
 func (shell *tRlShell) refreshPrompt() {
@@ -40,38 +46,31 @@ var RootCmd = &cobra.Command{
 		defer panicHandler()
 
 		alias, _ := cmd.Flags().GetString("freebox")
-
-		if len(alias) > 0 {
+		if alias != "" {
 			err := connect(alias)
 			checkErr(err)
-		} else {
-			for alias := range ENV.Freeboxs {
-				err := connect(alias)
-				checkErr(err)
-				break
-			}
 		}
 	},
+
+	Run: func(cmd *cobra.Command, args []string) {
+		shell(cmd, args)
+	},
+
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		if !ENV.KeepSession {
-			PoolLogout()
-		}
+		PoolLogout()
+		updateConfig()
 		rlshell.Close()
 	},
 }
 
 func connect(alias string) (err error) {
-	cfgEntry, ok := ENV.Freeboxs[alias]
+	_, ok := ENV.FreeboxsList[alias]
 	if !ok {
-		return errors.New("Cant load config")
+		return errors.New("Freebox not found, you'll need to enroll it first")
 	}
 
-	ENV.CurrentClient, err = NewClientFromPool(alias)
+	_, err = NewClientFromPool(alias)
 	checkErr(err)
-	if len(ENV.CurrentClient.SessionToken) == 0 {
-		err = ENV.CurrentClient.OpenSession(APPID, cfgEntry.AppToken)
-		checkErr(err)
-	}
 	ENV.CurrentAlias = alias
 
 	ENV.Cwd = "/"
@@ -86,14 +85,13 @@ func Execute() {
 }
 
 func init() {
-	ENV.Freeboxs = make(map[string]ConfigEntry)
+	ENV.FreeboxsList = make(map[string]*fbxapi.Freebox)
 
 	usr, err := user.Current()
 	checkErr(err)
 
 	RootCmd.PersistentFlags().StringVar(&ENV.CfgFile, "config", usr.HomeDir+"/.fbxcli.json", "config file (default is $HOME/.fbxcli.json)")
 	RootCmd.PersistentFlags().StringP("freebox", "f", "", "Local configureed name of Freebox to query")
-	RootCmd.PersistentFlags().BoolVarP(&ENV.KeepSession, "keep", "k", false, "Keep session open")
 
 	cobra.OnInitialize(initConfig)
 	rl, err := readline.New("> ")
@@ -106,7 +104,59 @@ func initConfig() {
 	if err == nil {
 		defer file.Close()
 		decoder := json.NewDecoder(file)
-		err = decoder.Decode(&ENV.Freeboxs)
+		err = decoder.Decode(&ENV.FreeboxsList)
 		checkErr(err)
+	}
+}
+
+func shell(cmd *cobra.Command, args []string) {
+	panicHandler = recoverOnPanic
+	defer panicHandler()
+
+	getCurrentClient()
+	rlshell.refreshPrompt()
+
+	for {
+		line, err := rlshell.Readline()
+		if err != nil { // io.EOF
+			break
+		}
+
+		line = strings.TrimSpace(line)
+		if len(line) == 0 {
+			continue
+		}
+
+		args, err := shellwords.Parse(line)
+		checkErr(err)
+		replCmd, replCmdArgs, err := cmd.Find(args)
+		if err != nil {
+			printErr(err)
+			continue
+		}
+
+		replCmd.ParseFlags(replCmdArgs)
+		replCmd.Run(replCmd, replCmdArgs)
+
+		/*if cmd == replCmd {
+			falias := replCmd.Flag("freebox")
+			alias := falias.Value.String()
+			if len(alias) > 0 {
+				connect(alias)
+			} else if len(replCmdArgs) > 0 {
+				connect(replCmdArgs[0])
+			}
+
+			continue
+		}*/
+		// cause weird nesting in interactive mode
+		/*if replCmd.PreRun != nil {
+			replCmd.PreRun(replCmd, replCmdArgs)
+		}
+
+		replCmd.Run(replCmd, replCmdArgs)
+		if replCmd.PostRun != nil {
+			replCmd.PostRun(replCmd, replCmdArgs)
+		}*/
 	}
 }

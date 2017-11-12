@@ -1,9 +1,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/jsurloppe/fbxapi"
 )
 
 func exitOnPanic() {
@@ -33,7 +36,7 @@ func checkErr(err error) {
 }
 
 func getKnownHosts() (knownHosts []string) {
-	for _, conf := range ENV.Freeboxs {
+	for _, conf := range ENV.FreeboxsList {
 		knownHosts = append(knownHosts, conf.Host)
 	}
 	return
@@ -45,4 +48,19 @@ func makePath(current, requested string) string {
 		path = fmt.Sprintf("%s/%s", strings.TrimSpace(current), path)
 	}
 	return path
+}
+
+func getCurrentClient() (client *fbxapi.Client, err error) {
+	if ENV.FreeboxsList == nil {
+		return nil, errors.New("No freebox")
+	}
+	if len(ENV.CurrentAlias) == 0 {
+		for alias := range ENV.FreeboxsList {
+			ENV.CurrentAlias = alias
+			break
+		}
+	}
+	client, err = NewClientFromPool(ENV.CurrentAlias)
+	checkErr(err)
+	return client, nil
 }

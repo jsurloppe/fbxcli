@@ -39,7 +39,9 @@ var cdCmd = &cobra.Command{
 				path = fmt.Sprintf("/%s", path)
 			}
 		}
-		resp, err := ENV.CurrentClient.Info(path)
+		client, err := getCurrentClient()
+		checkErr(err)
+		resp, err := client.Info(path)
 		checkErr(err)
 		if resp.Type == "dir" {
 			ENV.Cwd = path

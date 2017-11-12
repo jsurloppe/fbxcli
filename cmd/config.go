@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
-	"strconv"
 	"sync"
 
 	"github.com/jsurloppe/fbxapi"
@@ -14,28 +13,13 @@ const APPID = "com.github.jsurloppe.fbxcli"
 const APPNAME = "fbxcli"
 const APPVERSION = "0"
 
-var DEBUGMACRO = false
-
-type CliConfig struct {
-	Session string `json:"session,omitempty"`
-	Default bool   `json:"default,omitempty"`
-	UseSSL  bool   `json:"use_ssl"`
-}
-
 // ConfigEntry An entry representing a registered freebox
-type ConfigEntry struct {
-	fbxapi.Freebox
-	fbxapi.RespAuthorize
-	CliConfig
-}
 
 var ENV struct {
-	CfgFile       string
-	Freeboxs      map[string]ConfigEntry
-	CurrentAlias  string
-	CurrentClient *fbxapi.Client
-	KeepSession   bool
-	Cwd           string
+	CfgFile      string
+	FreeboxsList map[string]*fbxapi.Freebox
+	CurrentAlias string
+	Cwd          string
 }
 
 var clientPool struct {
@@ -50,13 +34,6 @@ func PoolLogout() {
 }
 
 func init() {
-	debugStr := os.Getenv("FBXCLI_DEBUG")
-	if len(debugStr) > 0 {
-		debugBool, err := strconv.ParseBool(debugStr)
-		if err == nil {
-			DEBUGMACRO = debugBool
-		}
-	}
 	clientPool.pool = make(map[string]*fbxapi.Client)
 	ENV.Cwd = "/"
 }
@@ -66,19 +43,18 @@ func NewClientFromPool(alias string) (client *fbxapi.Client, err error) {
 	defer clientPool.mutex.Unlock()
 	client, ok := clientPool.pool[alias]
 	if !ok {
-		freebox, ok := ENV.Freeboxs[alias]
+		freebox, ok := ENV.FreeboxsList[alias]
 		if !ok {
 			return nil, errors.New("Unregistered alias")
 		}
-		client, err = fbxapi.NewClientFromFreebox(freebox.Freebox, freebox.UseSSL)
+		client, err = fbxapi.NewClient(APPID, freebox)
 		checkErr(err)
-		client.SessionToken = freebox.Session
 		clientPool.pool[alias] = client
 	}
 	return client, err
 }
 
-func Register(alias string, freebox *fbxapi.Freebox, ssl bool) (client *fbxapi.Client, track_id int, err error) {
+func Register(alias string, freebox *fbxapi.Freebox) (client *fbxapi.Client, track_id int, err error) {
 	hostname, err := os.Hostname()
 	checkErr(err)
 
@@ -89,13 +65,14 @@ func Register(alias string, freebox *fbxapi.Freebox, ssl bool) (client *fbxapi.C
 		DeviceName: hostname,
 	}
 
-	client, err = fbxapi.NewClientFromFreebox(*freebox, ssl)
+	client, err = fbxapi.NewClient(APPID, freebox)
 	checkErr(err)
 	resp, err := client.Authorize(reqAuth)
 	checkErr(err)
-	configEntry := ConfigEntry{Freebox: *freebox, RespAuthorize: *resp}
+	freebox.RespAuthorize = *resp
+
 	// if registered:
-	ENV.Freeboxs[alias] = configEntry
+	ENV.FreeboxsList[alias] = freebox
 	updateConfig()
 	track_id = resp.TrackID
 	return
@@ -107,7 +84,7 @@ func updateConfig() {
 
 	encoder := json.NewEncoder(writer)
 	encoder.SetIndent("", "    ")
-	encoder.Encode(ENV.Freeboxs)
+	encoder.Encode(ENV.FreeboxsList)
 
 	writer.Close()
 }

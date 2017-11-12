@@ -18,7 +18,9 @@ var dlCmd = &cobra.Command{
 
 		path := args[0]
 		path = makePath(ENV.Cwd, path)
-		resp, err := ENV.CurrentClient.Dl(path)
+		client, err := getCurrentClient()
+		checkErr(err)
+		resp, err := client.Dl(path)
 		checkErr(err)
 
 		bar := pb.New(int(resp.ContentLength)).SetUnits(pb.U_BYTES)
@@ -36,7 +38,6 @@ var dlCmd = &cobra.Command{
 		checkErr(err)
 
 		bar.Finish()
-
 	},
 }
 

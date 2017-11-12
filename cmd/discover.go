@@ -1,12 +1,6 @@
 package cmd
 
-import (
-	"fmt"
-	"strings"
-
-	"github.com/jsurloppe/fbxapi"
-	"github.com/spf13/cobra"
-)
+import "github.com/spf13/cobra"
 
 func isKnownFreebox(host string) bool {
 	for _, knHost := range getKnownHosts() {
@@ -24,7 +18,7 @@ var discoverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		defer panicHandler()
 
-		boxs := fbxapi.MdnsDiscover()
+		/*boxs := fbxapi.MdnsDiscover()
 		nboxs := len(boxs)
 
 		for _, freebox := range boxs {
@@ -53,7 +47,7 @@ var discoverCmd = &cobra.Command{
 
 		if nboxs == 0 {
 			rlshell.Write([]byte("No new freebox found\n"))
-		}
+		}*/
 	},
 }
 

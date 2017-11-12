@@ -4,13 +4,14 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/jsurloppe/fbxcli/cmd"
-
 	"github.com/jsurloppe/fbxapi"
+	"github.com/jsurloppe/fbxcli/cmd"
 )
 
+var DEBUG = "NO"
+
 func init() {
-	if !cmd.DEBUGMACRO {
+	if DEBUG == "NO" {
 		log.SetOutput(ioutil.Discard)
 		fbxapi.Logr.SetOutput(ioutil.Discard)
 	}

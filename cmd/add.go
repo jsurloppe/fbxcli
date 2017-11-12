@@ -30,18 +30,13 @@ var addCmd = &cobra.Command{
 		flags := cmd.Flags()
 		port, err := flags.GetInt("port")
 		checkErr(err)
-		ssl, err := flags.GetBool("ssl")
-		checkErr(err)
-		if ssl && port == defaultPort {
-			port = defaultPortSSL
-		}
 		alias, err := flags.GetString("alias")
 		checkErr(err)
 		host, err := flags.GetString("host")
 		checkErr(err)
-		freebox, err := fbxapi.HttpDiscover(host, port, ssl)
+		freebox, err := fbxapi.HttpDiscover(host, port)
 		checkErr(err)
-		Register(alias, freebox, ssl)
+		Register(alias, freebox)
 	},
 }
 

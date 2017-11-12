@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/jsurloppe/fbxapi"
 	"github.com/spf13/cobra"
 )
 
@@ -15,10 +14,10 @@ var statusCmd = &cobra.Command{
 		defer panicHandler()
 		alias, _ := cmd.Flags().GetString("freebox")
 
-		freebox := ENV.Freeboxs[alias]
-		client, err := fbxapi.NewClientFromFreebox(freebox.Freebox, freebox.UseSSL)
+		client, err := NewClientFromPool(alias)
 		checkErr(err)
-		resp, err := client.TrackLogin(freebox.TrackID)
+
+		resp, err := client.TrackLogin(client.Freebox.TrackID)
 		checkErr(err)
 		rlshell.writeString(resp.Status)
 	},

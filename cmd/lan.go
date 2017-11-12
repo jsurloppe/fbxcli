@@ -15,7 +15,9 @@ var lanCmd = &cobra.Command{
 		iface, err := cmd.Flags().GetString("iface")
 		checkErr(err)
 
-		devices, err := ENV.CurrentClient.Interface(iface)
+		client, err := getCurrentClient()
+		checkErr(err)
+		devices, err := client.Interface(iface)
 		checkErr(err)
 
 		for _, device := range devices {
