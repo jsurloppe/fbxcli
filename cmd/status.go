@@ -12,9 +12,7 @@ var statusCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		defer panicHandler()
-		alias, _ := cmd.Flags().GetString("freebox")
-
-		client, err := NewClientFromPool(alias)
+		client, err := getCurrentClient()
 		checkErr(err)
 
 		resp, err := client.TrackLogin(client.Freebox.TrackID)

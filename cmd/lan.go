@@ -22,7 +22,7 @@ var lanCmd = &cobra.Command{
 
 		for _, device := range devices {
 			if device.Active {
-				line := fmt.Sprintf("[%s] %s %s %s\n", device.HostType, device.PrimaryName, device.L2Ident.Type, device.GetIPv4s())
+				line := fmt.Sprintf("[%s] %s %s %s\n", device.HostType, device.PrimaryName, device.L2Ident.ID, device.GetIPv4s())
 				_, err := rlshell.Write([]byte(line))
 				checkErr(err)
 			}
