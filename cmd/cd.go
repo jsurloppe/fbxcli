@@ -19,22 +19,26 @@ var cdCmd = &cobra.Command{
 			}
 		}
 
+		alias := ENV.CurrentAlias
+
+		cwd := getCwd(alias)
+
 		if path == "." {
 			return
 		}
 
 		if path == ".." {
-			i := strings.LastIndex(ENV.Cwd, "/")
+			i := strings.LastIndex(cwd, "/")
 			if i > 0 {
-				path = ENV.Cwd[:i]
+				path = cwd[:i]
 			} else {
 				path = "/"
 			}
 		}
 
 		if !strings.HasPrefix(path, "/") {
-			if ENV.Cwd != "/" {
-				path = fmt.Sprintf("%s/%s", ENV.Cwd, path)
+			if cwd != "/" {
+				path = fmt.Sprintf("%s/%s", cwd, path)
 			} else {
 				path = fmt.Sprintf("/%s", path)
 			}
@@ -44,7 +48,7 @@ var cdCmd = &cobra.Command{
 		resp, err := client.Info(path)
 		checkErr(err)
 		if resp.Type == "dir" {
-			ENV.Cwd = path
+			ENV.Cwd[alias] = path
 			rlshell.refreshPrompt()
 		}
 	},

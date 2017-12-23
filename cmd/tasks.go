@@ -6,9 +6,9 @@ var tasksCmd = &cobra.Command{
 	Use:   "tasks",
 	Short: "List tasks",
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := getCurrentClient()
+		/*client, err := getCurrentClient()
 		checkErr(err)
-		client.Tasks()
+		client.Tasks()*/
 	},
 }
 

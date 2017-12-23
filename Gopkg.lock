@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/Sirupsen/logrus"
+  packages = ["."]
+  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
+  version = "v1.0.4"
+
+[[projects]]
   name = "github.com/chzyer/readline"
   packages = ["."]
   revision = "62c6fe6193755f722b8b8788aa7357be55a50ff1"
@@ -29,7 +35,7 @@
   branch = "master"
   name = "github.com/jsurloppe/fbxapi"
   packages = ["."]
-  revision = "cb533e08b3ed6dbb11c6929db5a8dc905704f2b0"
+  revision = "a025fd3f3d6ab1a7d8ac18b2c6afaf031c738a9c"
 
 [[projects]]
   name = "github.com/mattn/go-runewidth"
@@ -46,8 +52,8 @@
 [[projects]]
   branch = "master"
   name = "github.com/miekg/dns"
-  packages = [".","internal/socket"]
-  revision = "9fc4eb252eedf0ef8adc05169ce35da5e31beaba"
+  packages = ["."]
+  revision = "90888765254c1fa54fa39e2eb383aa3436a2e8f8"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -62,10 +68,28 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["ed25519","ed25519/internal/edwards25519","ssh/terminal"]
+  revision = "d585fd2cc9195196078f516b69daff6744ef5e84"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = ["bpf","internal/iana","internal/socket","ipv4","ipv6"]
+  revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix","windows"]
+  revision = "83801418e1b59fb1880e363299581ee543af32ca"
+
+[[projects]]
   name = "gopkg.in/cheggaaa/pb.v1"
   packages = ["."]
-  revision = "657164d0228d6bebe316fdf725c69f131a50fb10"
-  version = "v1.0.18"
+  revision = "18d384da9bdc1e5a08fc2a62a494c321d9ae74ea"
+  version = "v1.0.19"
 
 [solve-meta]
   analyzer-name = "dep"

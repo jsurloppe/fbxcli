@@ -60,7 +60,7 @@ func getCurrentClient() (client *fbxapi.Client, err error) {
 			break
 		}
 	}
-	client, err = NewClientFromPool(ENV.CurrentAlias)
+	client, err = NewClient(ENV.CurrentAlias)
 	checkErr(err)
 	return client, nil
 }

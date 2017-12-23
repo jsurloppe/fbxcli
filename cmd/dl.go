@@ -16,8 +16,12 @@ var dlCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		defer panicHandler()
 
+		alias := ENV.CurrentAlias
+		cwd := ENV.Cwd[alias]
+
 		path := args[0]
-		path = makePath(ENV.Cwd, path)
+		path = makePath(cwd, path)
+
 		client, err := getCurrentClient()
 		checkErr(err)
 		resp, err := client.Dl(path)

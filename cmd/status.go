@@ -1,23 +1,29 @@
 package cmd
 
 import (
+	"strconv"
+
+	"github.com/jsurloppe/fbxapi"
 	"github.com/spf13/cobra"
 )
 
 var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Status of fbxcli registration for this host",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-
-	},
 	Run: func(cmd *cobra.Command, args []string) {
 		defer panicHandler()
 		client, err := getCurrentClient()
 		checkErr(err)
 
-		resp, err := client.TrackLogin(client.Freebox.TrackID)
+		params := map[string]string{
+			"track_id": strconv.Itoa(client.Freebox.TrackID),
+		}
+
+		state := new(fbxapi.AuthorizationState)
+		err = client.Query(fbxapi.TrackAuthorizeEP).As(params).Do(&state)
 		checkErr(err)
-		rlshell.writeString(resp.Status)
+
+		rlshell.writeString(state.Status)
 	},
 }
 

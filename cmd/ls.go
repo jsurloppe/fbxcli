@@ -16,10 +16,13 @@ var lsCmd = &cobra.Command{
 			path = args[0]
 		}
 
-		path = makePath(ENV.Cwd, path)
+		alias := ENV.CurrentAlias
+		cwd := ENV.Cwd[alias]
+
+		path = makePath(cwd, path)
 		client, err := getCurrentClient()
 		checkErr(err)
-		resp, err := client.Ls(path, !showHidden, false, false)
+		resp, err := client.Ls(path, false, false, !showHidden)
 		checkErr(err)
 
 		for _, f := range resp {

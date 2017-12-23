@@ -9,17 +9,13 @@ import (
 	"github.com/jsurloppe/fbxapi"
 )
 
-const APPID = "com.github.jsurloppe.fbxcli"
-const APPNAME = "fbxcli"
-const APPVERSION = "0"
-
 // ConfigEntry An entry representing a registered freebox
 
 var ENV struct {
 	CfgFile      string
 	FreeboxsList map[string]*fbxapi.Freebox
 	CurrentAlias string
-	Cwd          string
+	Cwd          map[string]string
 }
 
 var clientPool struct {
@@ -33,12 +29,19 @@ func PoolLogout() {
 	}
 }
 
-func init() {
-	clientPool.pool = make(map[string]*fbxapi.Client)
-	ENV.Cwd = "/"
+func getCwd(alias string) string {
+	if cwd, ok := ENV.Cwd[alias]; ok {
+		return cwd
+	}
+	return "/"
 }
 
-func NewClientFromPool(alias string) (client *fbxapi.Client, err error) {
+func init() {
+	clientPool.pool = make(map[string]*fbxapi.Client)
+	ENV.Cwd = make(map[string]string)
+}
+
+func NewClient(alias string) (client *fbxapi.Client, err error) {
 	clientPool.mutex.Lock()
 	defer clientPool.mutex.Unlock()
 	client, ok := clientPool.pool[alias]
@@ -47,15 +50,14 @@ func NewClientFromPool(alias string) (client *fbxapi.Client, err error) {
 		if !ok {
 			return nil, errors.New("Unregistered alias")
 		}
-		client, err = fbxapi.NewClient(APPID, freebox)
-		checkErr(err)
+		client = fbxapi.NewClient(App, freebox)
 		clientPool.pool[alias] = client
 	}
 	return client, err
 }
 
 func Register(alias string, freebox *fbxapi.Freebox) (client *fbxapi.Client, track_id int, err error) {
-	hostname, err := os.Hostname()
+	/*hostname, err := os.Hostname()
 	checkErr(err)
 
 	reqAuth := fbxapi.TokenRequest{
@@ -65,8 +67,7 @@ func Register(alias string, freebox *fbxapi.Freebox) (client *fbxapi.Client, tra
 		DeviceName: hostname,
 	}
 
-	client, err = fbxapi.NewClient(APPID, freebox)
-	checkErr(err)
+	client = fbxapi.NewClient(App, freebox)
 	resp, err := client.Authorize(reqAuth)
 	checkErr(err)
 	freebox.RespAuthorize = *resp
@@ -74,7 +75,14 @@ func Register(alias string, freebox *fbxapi.Freebox) (client *fbxapi.Client, tra
 	// if registered:
 	ENV.FreeboxsList[alias] = freebox
 	updateConfig()
-	track_id = resp.TrackID
+	track_id = resp.TrackID*/
+	return
+}
+
+func getDefaultFreebox() (alias string) {
+	for alias = range ENV.FreeboxsList {
+		break
+	}
 	return
 }
 

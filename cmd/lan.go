@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/jsurloppe/fbxapi"
 	"github.com/spf13/cobra"
 )
 
@@ -17,12 +18,18 @@ var lanCmd = &cobra.Command{
 
 		client, err := getCurrentClient()
 		checkErr(err)
-		devices, err := client.Interface(iface)
+
+		params := map[string]string{
+			"iface": iface,
+		}
+
+		var hosts []fbxapi.LanHost
+		err = client.Query(fbxapi.InterfaceEP).As(params).Do(&hosts)
 		checkErr(err)
 
-		for _, device := range devices {
-			if device.Active {
-				line := fmt.Sprintf("[%s] %s %s %s\n", device.HostType, device.PrimaryName, device.L2Ident.ID, device.GetIPv4s())
+		for _, host := range hosts {
+			if host.Active {
+				line := fmt.Sprintf("[%s] %s %s %s\n", host.HostType, host.PrimaryName, host.L2Ident.ID, host.GetIPv4s())
 				_, err := rlshell.Write([]byte(line))
 				checkErr(err)
 			}
