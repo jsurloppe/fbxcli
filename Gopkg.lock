@@ -35,7 +35,7 @@
   branch = "master"
   name = "github.com/jsurloppe/fbxapi"
   packages = ["."]
-  revision = "a025fd3f3d6ab1a7d8ac18b2c6afaf031c738a9c"
+  revision = "b9fd19a05d2ec2452ac1151a400703a74550ecb9"
 
 [[projects]]
   name = "github.com/mattn/go-runewidth"
