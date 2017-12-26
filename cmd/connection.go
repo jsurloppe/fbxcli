@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/jsurloppe/fbxapi"
 	"github.com/spf13/cobra"
@@ -29,9 +30,24 @@ var connectionCmd = &cobra.Command{
 		fmt.Printf("\tTX current %d (%d Kb/s)\n", state.RateUp, state.RateUp/1000)
 		fmt.Printf("\tTX available %d (%d Kb/s)\n", state.BandwidthUp, state.BandwidthUp/1000)
 		fmt.Printf("\tTX bytes %d\n", state.BytesUp)
+
+		if showLogs, _ := cmd.Flags().GetBool("logs"); showLogs {
+			var logs []fbxapi.ConnectionLog
+			err = client.Query(fbxapi.ConnectionLogEP).Do(&logs)
+			for _, log := range logs {
+				// FIXME: wrong timezone after DST
+				tm := time.Unix(int64(log.Date), 0)
+				name := log.Conn
+				if name == "" {
+					name = log.Link
+				}
+				fmt.Printf("%s\t%s\t%-10s\t%s\t%10d\t%10d\n", tm, log.Type, name, log.State, log.BandwidthDown, log.BandwidthUp)
+			}
+		}
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(connectionCmd)
+	connectionCmd.Flags().Bool("logs", false, "show connection logs")
 }
