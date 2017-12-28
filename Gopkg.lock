@@ -35,7 +35,7 @@
   branch = "master"
   name = "github.com/jsurloppe/fbxapi"
   packages = ["."]
-  revision = "0255fa2aee3bba9e6912d305de4539dc4b59f521"
+  revision = "e8b8bd909999c46f9348c023492fcd063f97887e"
 
 [[projects]]
   name = "github.com/mattn/go-runewidth"
@@ -76,7 +76,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["bpf","internal/iana","internal/socket","ipv4","ipv6"]
+  packages = ["bpf","internal/iana","internal/socket","ipv4","ipv6","websocket"]
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
